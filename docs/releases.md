@@ -9,6 +9,8 @@ is needed.
 - **Code ZIP:** executable, documentation, notices and installation metadata.
 - **Libraries ZIP:** bundled Python and native libraries.
 - **Model assets ZIPs:** checkpoint chunks, each below 900 MiB.
+- **Full ZIP:** the complete application in one archive, for approved delivery
+  channels that permit files larger than 1 GiB.
 
 Extract every ZIP from the same release into one new folder. The first model use
 verifies and rebuilds the checkpoint locally. Keep at least 3 GiB free for that
@@ -16,9 +18,10 @@ one-time step. Builds need at least 8 GiB of free working space.
 
 ## Install or update
 
-Extract the Code, Libraries and every Model Assets ZIP into the same fresh
-folder. Keep the EXE beside `_internal`, then start it normally. Keep review
-folders outside the installation.
+Either extract the Full ZIP into a fresh folder, or extract the Code, Libraries
+and every Model Assets ZIP into the same fresh folder. Keep the EXE beside
+`_internal`, then start it normally. Keep review folders outside the
+installation.
 
 ## Publish
 

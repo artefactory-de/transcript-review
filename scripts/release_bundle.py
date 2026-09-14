@@ -140,13 +140,18 @@ def make_split_release(root, out, version, *, part_limit=SPLIT_LIMIT):
     its first model load.
     """
     root, out = Path(root), Path(out)
-    if part_limit <= 0 or out.exists():
-        raise ValueError('Invalid split release destination or part limit')
+    if part_limit <= 0:
+        raise ValueError('Invalid split release part limit')
     manifest = inventory(root, version)
     weights = root / MODEL_WEIGHTS
     if not weights.is_file():
         raise ValueError('Expected bundled model weights are missing')
-    out.mkdir(parents=True)
+    # A complete release may include the monolithic ZIP as well as these
+    # delivery-sized packages.  Existing files still fail closed because ZIPs
+    # are opened in exclusive-create mode below.
+    out.mkdir(parents=True, exist_ok=True)
+    if not out.is_dir():
+        raise ValueError('Split release destination is not a directory')
     part_dir = out / '.model-parts'
     part_dir.mkdir()
     parts, index = [], 1

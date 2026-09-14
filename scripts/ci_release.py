@@ -8,7 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from release_bundle import VERSION, make_split_release
+from release_bundle import VERSION, make_release, make_split_release
 
 
 def run(*args, **kwargs):
@@ -71,12 +71,13 @@ def main():
                     target.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(source, target)
     (folder / 'dependency-licenses.json').write_text(json.dumps(records, indent=2), encoding='utf-8')
-    if args.base:
-        raise RuntimeError('Split releases do not yet support update packages')
-    make_split_release(folder, work / 'release', args.version)
+    release = work / 'release'
+    # Keep the one-folder package for approved internal deployment channels,
+    # while also publishing download-sized packages for constrained gateways.
+    make_release(folder, release, args.version, args.base, work / 'updater/Apply-Update.exe')
+    make_split_release(folder, release, args.version)
     (work / 'release/verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
     from release_bundle import digest
-    release = work / 'release'
     (release / 'SHA256SUMS.txt').write_text(''.join(f'{digest(p)}  {p.name}\n' for p in sorted(release.iterdir()) if p.is_file() and p.name != 'SHA256SUMS.txt'), encoding='utf-8')
 
 

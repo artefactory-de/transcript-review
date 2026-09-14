@@ -125,3 +125,18 @@ def test_split_release_separates_code_libraries_and_model_parts(tmp_path):
         assert '_internal/library.dll' in archive.namelist()
         assert '_internal/model/model.safetensors' not in archive.namelist()
     assert all(path.stat().st_size < 900 * 1024**2 for path in (tmp_path / 'release').glob('*.zip'))
+
+
+def test_complete_release_can_include_full_and_split_packages(tmp_path):
+    root = tmp_path / 'app'
+    (root / '_internal' / 'model').mkdir(parents=True)
+    (root / 'app.exe').write_bytes(b'exe')
+    (root / '_internal' / 'library.dll').write_bytes(b'library')
+    (root / '_internal' / 'model' / 'model.safetensors').write_bytes(b'0123456789')
+    release = tmp_path / 'release'
+    make_release(root, release, '1.0.0')
+    make_split_release(root, release, '1.0.0', part_limit=5)
+    assert len(list(release.glob('*-full.zip'))) == 1
+    assert len(list(release.glob('*-code.zip'))) == 1
+    assert len(list(release.glob('*-libraries.zip'))) == 1
+    assert len(list(release.glob('*-model-assets-*.zip'))) == 2
