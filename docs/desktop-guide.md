@@ -2,8 +2,10 @@
 
 ## Prepare
 
-Extract the full ZIP and double-click the EXE. Keep its support folder beside it.
-No Python installation or model download is needed.
+Extract the Code ZIP, Libraries ZIP and every Model Assets ZIP into the same new
+folder, then double-click the EXE. Keep its support folder beside it. The first
+model use verifies and rebuilds the local checkpoint. No Python installation or
+model download is needed.
 
 Select a DOCX and click **Prepare review**. The default workspace is a
 `Transcript review` folder beside the input. It contains sensitive text and

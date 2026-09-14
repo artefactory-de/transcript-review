@@ -8,7 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from release_bundle import VERSION, apply_update, archive_manifest, inventory, make_release
+from release_bundle import VERSION, make_split_release
 
 
 def run(*args, **kwargs):
@@ -71,19 +71,9 @@ def main():
                     target.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(source, target)
     (folder / 'dependency-licenses.json').write_text(json.dumps(records, indent=2), encoding='utf-8')
-    make_release(folder, work / 'release', args.version, args.base, work / 'updater/Apply-Update.exe')
     if args.base:
-        import zipfile
-        installed, update = work / 'previous', work / 'patch'
-        with zipfile.ZipFile(args.base) as archive:
-            archive_manifest(archive)
-            archive.extractall(installed)
-        with zipfile.ZipFile(next((work / 'release').glob('*update.zip'))) as archive:
-            archive.extractall(update)
-        result = apply_update(installed, update, work / 'updated')
-        assert inventory(result, args.version) == inventory(folder, args.version)
-        run(result / exe.name, '--self-test', work / 'updated-smoke', cwd=work, env=environment, timeout=600)
-        assert json.loads((work / 'updated-smoke/result.json').read_text())['ok']
+        raise RuntimeError('Split releases do not yet support update packages')
+    make_split_release(folder, work / 'release', args.version)
     (work / 'release/verification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
     from release_bundle import digest
     release = work / 'release'

@@ -13,6 +13,7 @@ import importlib.resources
 import io
 import json
 import re
+import shutil
 import threading
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
@@ -621,6 +622,68 @@ def _verify_model_assets(model_path: Path) -> None:
             raise _error("Local model assets failed pinned checksum verification")
 
 
+def _assemble_model_parts(model_path: Path) -> None:
+    """Rebuild a split release's checkpoint before the normal pinned check."""
+
+    manifest_path = model_path.parent / "model-parts.json"
+    if not manifest_path.is_file():
+        return
+    try:
+        plan = json.loads(manifest_path.read_text(encoding="utf-8"))
+        target = plan["target"]
+        parts = plan["parts"]
+        expected_size = plan["bytes"]
+        expected_sha256 = plan["sha256"]
+    except (OSError, KeyError, TypeError, UnicodeError, json.JSONDecodeError) as exc:
+        raise _error("Split model package manifest is invalid") from exc
+    if (
+        not isinstance(target, str)
+        or target != "model.safetensors"
+        or not isinstance(parts, list)
+        or not parts
+        or type(expected_size) is not int
+        or expected_size < 0
+        or not isinstance(expected_sha256, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", expected_sha256)
+    ):
+        raise _error("Split model package manifest is invalid")
+    destination = model_path / target
+    if destination.is_file():
+        return
+    parts_root = model_path.parent / "model-parts"
+    temporary = destination.with_suffix(destination.suffix + ".assembling")
+    digest, size = hashlib.sha256(), 0
+    try:
+        with temporary.open("xb") as output:
+            for index, item in enumerate(parts, 1):
+                if not isinstance(item, dict) or item.get("name") != f"model.safetensors.part{index:03d}":
+                    raise _error("Split model package manifest is invalid")
+                part = parts_root / item["name"]
+                if not part.is_file() or type(item.get("bytes")) is not int or not isinstance(item.get("sha256"), str):
+                    raise _error("Extract every model asset package into this application folder")
+                part_digest, part_size = hashlib.sha256(), 0
+                with part.open("rb") as source:
+                    while chunk := source.read(1024 * 1024):
+                        part_size += len(chunk)
+                        part_digest.update(chunk)
+                        digest.update(chunk)
+                        size += len(chunk)
+                        output.write(chunk)
+                if part_size != item["bytes"] or part_digest.hexdigest() != item["sha256"]:
+                    raise _error("A split model asset package is incomplete or modified")
+        if size != expected_size or digest.hexdigest() != expected_sha256:
+            raise _error("Reassembled model asset failed pinned checksum verification")
+        temporary.replace(destination)
+        shutil.rmtree(parts_root)
+        manifest_path.unlink()
+    except AnonymizerError:
+        temporary.unlink(missing_ok=True)
+        raise
+    except OSError as exc:
+        temporary.unlink(missing_ok=True)
+        raise _error("Could not assemble the local model assets") from exc
+
+
 class Detector:
     """Run deterministic rules and, when explicitly configured, a local GLiNER2 model."""
 
@@ -672,6 +735,7 @@ class Detector:
     def _load_model(model_path: Path) -> Any:
         if not model_path.is_dir():
             raise _error("Configured local model assets are missing")
+        _assemble_model_parts(model_path)
         _verify_model_assets(model_path)
         import os
 

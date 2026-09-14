@@ -9,6 +9,7 @@ from scripts.release_bundle import (
     checked_manifest,
     inventory,
     make_release,
+    make_split_release,
     safe_name,
 )
 
@@ -103,3 +104,24 @@ def test_manifest_rejects_wrong_value_types(field, value):
         data['files']['app.exe'][field] = value
     with pytest.raises(ValueError):
         checked_manifest(data)
+
+
+def test_split_release_separates_code_libraries_and_model_parts(tmp_path):
+    root = tmp_path / 'app'
+    (root / '_internal' / 'model').mkdir(parents=True)
+    (root / 'app.exe').write_bytes(b'exe')
+    (root / '_internal' / 'library.dll').write_bytes(b'library')
+    (root / '_internal' / 'model' / 'config.json').write_bytes(b'{}')
+    (root / '_internal' / 'model' / 'model.safetensors').write_bytes(b'0123456789abcdefghij')
+    make_split_release(root, tmp_path / 'release', '1.0.0', part_limit=10)
+    code = next((tmp_path / 'release').glob('*-code.zip'))
+    libraries = next((tmp_path / 'release').glob('*-libraries.zip'))
+    model_zips = sorted((tmp_path / 'release').glob('*-model-assets-*.zip'))
+    assert len(model_zips) == 2
+    with zipfile.ZipFile(code) as archive:
+        assert set(archive.namelist()) >= {'app.exe', MANIFEST, '_internal/model-parts.json', 'INSTALL.txt'}
+        assert '_internal/library.dll' not in archive.namelist()
+    with zipfile.ZipFile(libraries) as archive:
+        assert '_internal/library.dll' in archive.namelist()
+        assert '_internal/model/model.safetensors' not in archive.namelist()
+    assert all(path.stat().st_size < 900 * 1024**2 for path in (tmp_path / 'release').glob('*.zip'))

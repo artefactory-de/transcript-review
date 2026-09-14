@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 
@@ -16,6 +17,28 @@ def _policy(*, aliases: list[dict] | None = None) -> dict:
     if aliases is not None:
         policy["aliases"] = aliases
     return policy
+
+
+def test_split_model_assets_reassemble_and_remove_parts(tmp_path, monkeypatch):
+    model = tmp_path / 'model'
+    model.mkdir()
+    payload = b'0123456789abcdef'
+    parts = [payload[:8], payload[8:]]
+    parts_root = tmp_path / 'model-parts'
+    parts_root.mkdir()
+    records = []
+    for index, part in enumerate(parts, 1):
+        name = f'model.safetensors.part{index:03d}'
+        (parts_root / name).write_bytes(part)
+        records.append({'name': name, 'bytes': len(part), 'sha256': hashlib.sha256(part).hexdigest()})
+    (tmp_path / 'model-parts.json').write_text(json.dumps({
+        'format': 1, 'target': 'model.safetensors', 'bytes': len(payload),
+        'sha256': hashlib.sha256(payload).hexdigest(), 'parts': records,
+    }), encoding='utf-8')
+    detection_module._assemble_model_parts(model)
+    assert (model / 'model.safetensors').read_bytes() == payload
+    assert not parts_root.exists()
+    assert not (tmp_path / 'model-parts.json').exists()
 
 
 def test_rules_only_detects_direct_pii_and_preserves_alias_key() -> None:

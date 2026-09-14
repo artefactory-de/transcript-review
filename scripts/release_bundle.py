@@ -11,6 +11,9 @@ import zipfile
 from pathlib import Path, PurePosixPath
 
 MANIFEST = 'release-manifest.json'
+MODEL_PARTS = '_internal/model-parts.json'
+MODEL_WEIGHTS = '_internal/model/model.safetensors'
+SPLIT_LIMIT = 768 * 1024**2
 VERSION = re.compile(r'v?\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?\Z')
 
 
@@ -118,6 +121,64 @@ def make_release(root, out, version, base=None, updater=None):
             raise ValueError('Release asset exceeds GitHub size limit')
     (out / MANIFEST).write_bytes(raw)
     (out / 'SHA256SUMS.txt').write_text(''.join(f'{digest(p)}  {p.name}\n' for p in sorted(out.iterdir()) if p.is_file()), encoding='utf-8')
+    return manifest
+
+
+def _write_zip(path, files, extra=()):
+    with zipfile.ZipFile(path, 'x', compression=zipfile.ZIP_DEFLATED) as archive:
+        for name, source in files:
+            archive.write(source, name)
+        for name, data in extra:
+            archive.writestr(name, data)
+
+
+def make_split_release(root, out, version, *, part_limit=SPLIT_LIMIT):
+    """Package executable code, libraries, and model weights separately.
+
+    Every ZIP stays below the download limit. Extract all packages into the
+    same fresh folder; the application verifies and rebuilds split weights on
+    its first model load.
+    """
+    root, out = Path(root), Path(out)
+    if part_limit <= 0 or out.exists():
+        raise ValueError('Invalid split release destination or part limit')
+    manifest = inventory(root, version)
+    weights = root / MODEL_WEIGHTS
+    if not weights.is_file():
+        raise ValueError('Expected bundled model weights are missing')
+    out.mkdir(parents=True)
+    part_dir = out / '.model-parts'
+    part_dir.mkdir()
+    parts, index = [], 1
+    with weights.open('rb') as source:
+        while chunk := source.read(part_limit):
+            name = f'model.safetensors.part{index:03d}'
+            path = part_dir / name
+            path.write_bytes(chunk)
+            parts.append({'name': name, 'bytes': len(chunk), 'sha256': digest(path)})
+            index += 1
+    plan = {'format': 1, 'target': 'model.safetensors', 'bytes': weights.stat().st_size,
+            'sha256': digest(weights), 'parts': parts}
+    raw_manifest = json.dumps(manifest, indent=2, sort_keys=True).encode()
+    instructions = (
+        'Extract Code, Libraries, and every Model-Assets ZIP into one new folder. '
+        'Keep the folder writable. Start transcript-anonymizer-desktop-onedir.exe. '
+        'The first model use verifies and rebuilds the local model; this needs temporary free disk space.\n'
+    )
+    code = [(name, root / name) for name in manifest['files'] if not name.startswith('_internal/')]
+    libraries = [(name, root / name) for name in manifest['files'] if name.startswith('_internal/') and name != MODEL_WEIGHTS]
+    _write_zip(out / f'Transcript-Review-{version}-windows-x64-code.zip', code, [
+        (MANIFEST, raw_manifest), (MODEL_PARTS, json.dumps(plan, indent=2, sort_keys=True)), ('INSTALL.txt', instructions)])
+    _write_zip(out / f'Transcript-Review-{version}-windows-x64-libraries.zip', libraries)
+    for part in parts:
+        package = out / f'Transcript-Review-{version}-windows-x64-model-assets-{part["name"][-3:]}.zip'
+        _write_zip(package, [(f'model-parts/{part["name"]}', part_dir / part['name'])])
+    shutil.rmtree(part_dir)
+    for path in out.glob('*.zip'):
+        if path.stat().st_size >= 900 * 1024**2:
+            raise ValueError('Split release asset exceeds the 900 MiB delivery limit')
+    (out / MANIFEST).write_bytes(raw_manifest)
+    (out / 'SHA256SUMS.txt').write_text(''.join(f'{digest(p)}  {p.name}\n' for p in sorted(out.iterdir()) if p.is_file() and p.name != 'SHA256SUMS.txt'), encoding='utf-8')
     return manifest
 
 

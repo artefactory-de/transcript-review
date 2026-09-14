@@ -4,20 +4,19 @@ Run **Build release candidate** against an existing version tag. The workflow
 builds a Windows x64 application with pinned dependencies, model and runtime,
 then tests the frozen review/import/sign-off/export cycle.
 
-- **Full ZIP:** complete offline application, manifests, checksums and notices.
-- **Update ZIP:** changed files for the specified `base_tag`. CI verifies that
-  applying it reconstructs the full release. The first release is full-only.
+- **Code ZIP:** executable, documentation, notices and installation metadata.
+- **Libraries ZIP:** bundled Python and native libraries.
+- **Model assets ZIPs:** checkpoint chunks, each below 900 MiB.
 
-Updates may be large when dependencies or model assets change. Each ZIP must be
-under 2 GiB. Builds need at least 8 GiB of free working space.
+Extract every ZIP from the same release into one new folder. The first model use
+verifies and rebuilds the checkpoint locally. Keep at least 3 GiB free for that
+one-time step. Builds need at least 8 GiB of free working space.
 
 ## Install or update
 
-Extract a full ZIP and keep the EXE beside `_internal`.
-For an update, close the application, extract the update ZIP separately and run
-`Apply-Update.exe`. Select the previous installation. A verified new installation
-is created beside it; the old one remains available for rollback. Keep review
-folders outside both installations.
+Extract the Code, Libraries and every Model Assets ZIP into the same fresh
+folder. Keep the EXE beside `_internal`, then start it normally. Keep review
+folders outside the installation.
 
 ## Publish
 
