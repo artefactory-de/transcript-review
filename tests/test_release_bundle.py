@@ -1,4 +1,5 @@
 import json
+import os
 import zipfile
 
 import pytest
@@ -142,3 +143,27 @@ def test_complete_release_can_include_full_and_split_packages(tmp_path):
     assert len(list(release.glob('*-code.zip'))) == 1
     assert len(list(release.glob('*-libraries.zip'))) == 1
     assert len(list(release.glob('*-model-assets-*.zip'))) == 2
+
+
+def test_split_asset_limit_ignores_an_existing_full_package(tmp_path, monkeypatch):
+    root = tmp_path / 'app'
+    (root / '_internal' / 'model').mkdir(parents=True)
+    (root / 'app.exe').write_bytes(b'exe')
+    (root / '_internal' / 'model' / 'model.safetensors').write_bytes(b'0123456789')
+    release = tmp_path / 'release'
+    make_release(root, release, '1.0.0')
+    # This represents the large full ZIP; it must not make the split delivery
+    # check fail.
+    full = next(release.glob('*-full.zip'))
+    original_stat = type(full).stat
+
+    def oversized_stat(path, *args, **kwargs):
+        result = original_stat(path, *args, **kwargs)
+        return result if path != full else os.stat_result((
+            result.st_mode, result.st_ino, result.st_dev, result.st_nlink,
+            result.st_uid, result.st_gid, 900 * 1024**2, result.st_atime,
+            result.st_mtime, result.st_ctime,
+        ))
+
+    monkeypatch.setattr(type(full), 'stat', oversized_stat)
+    make_split_release(root, release, '1.0.0', part_limit=5)

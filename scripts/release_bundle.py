@@ -172,14 +172,17 @@ def make_split_release(root, out, version, *, part_limit=SPLIT_LIMIT):
     )
     code = [(name, root / name) for name in manifest['files'] if not name.startswith('_internal/')]
     libraries = [(name, root / name) for name in manifest['files'] if name.startswith('_internal/') and name != MODEL_WEIGHTS]
-    _write_zip(out / f'Transcript-Review-{version}-windows-x64-code.zip', code, [
+    split_packages = [out / f'Transcript-Review-{version}-windows-x64-code.zip']
+    _write_zip(split_packages[0], code, [
         (MANIFEST, raw_manifest), (MODEL_PARTS, json.dumps(plan, indent=2, sort_keys=True)), ('INSTALL.txt', instructions)])
-    _write_zip(out / f'Transcript-Review-{version}-windows-x64-libraries.zip', libraries)
+    split_packages.append(out / f'Transcript-Review-{version}-windows-x64-libraries.zip')
+    _write_zip(split_packages[-1], libraries)
     for part in parts:
         package = out / f'Transcript-Review-{version}-windows-x64-model-assets-{part["name"][-3:]}.zip'
         _write_zip(package, [(f'_internal/model-parts/{part["name"]}', part_dir / part['name'])])
+        split_packages.append(package)
     shutil.rmtree(part_dir)
-    for path in out.glob('*.zip'):
+    for path in split_packages:
         if path.stat().st_size >= 900 * 1024**2:
             raise ValueError('Split release asset exceeds the 900 MiB delivery limit')
     (out / MANIFEST).write_bytes(raw_manifest)
