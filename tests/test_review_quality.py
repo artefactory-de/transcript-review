@@ -122,6 +122,24 @@ def test_review_only_finding_is_ranked_but_not_replacement_group():
     assert "review_only_candidate" in rows[0]["reasons"]
 
 
+def test_ranked_queue_prioritizes_likely_sensitive_pii_over_weak_generic_candidate():
+    source = [
+        {"id": "s-person", "text": "Alice spoke."},
+        {"id": "s-email", "text": "Contact reference."},
+    ]
+    rows = rank_retained_passages(
+        source,
+        source,
+        [
+            finding("s-person", source[0]["text"], 0, 5, "person", 0.10, review_only=True),
+            finding("s-email", source[1]["text"], 0, 7, "email", 0.90, review_only=True),
+        ],
+        [],
+    )
+    assert [row["id"] for row in rows] == ["s-email", "s-person"]
+    assert "sensitive_identifier_candidate" in rows[0]["reasons"]
+
+
 def test_masked_findings_do_not_boost_visible_candidate():
     source = [{"id": "s1", "text": "Alice spoke."}]
     rendered = [{"id": "s1", "text": "<REDACTED> spoke."}]

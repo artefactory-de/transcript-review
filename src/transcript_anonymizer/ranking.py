@@ -44,6 +44,18 @@ _CATEGORY_PRIORITY = {
     "depot_id": 7,
 }
 
+# The retained-passage queue is a risk order, not a generic model-uncertainty
+# order. A plausible direct identifier should therefore be inspected before a
+# weak generic person prediction, even when both remain unmodified.
+_SENSITIVE_IDENTIFIER_CATEGORIES = {
+    "email",
+    "phone",
+    "iban",
+    "account_id",
+    "customer_id",
+    "depot_id",
+}
+
 
 def canonical_occurrence_id(finding: dict[str, Any]) -> str:
     """Return the workflow's stable ID for a source finding."""
@@ -306,11 +318,20 @@ def rank_retained_passages(
             for other in by_segment[segment_id]
         ):
             reasons.append("overlap_suppressed_candidate")
-        reason_boosts = {reasons[0]: (0.30 if finding.get("review_only", False) else 0.10)}
+        confidence = min(1.0, max(0.0, finding["score"]))
+        # A retained, confident candidate is more likely to represent missed
+        # PII than a weak one.  Lower confidence remains a small uncertainty
+        # signal, but cannot dominate the primary PII-risk signal.
+        reason_boosts = {
+            reasons[0]: (0.12 + 0.16 * confidence if finding.get("review_only", False)
+                         else 0.08 + 0.12 * confidence)
+        }
+        if finding.get("category") in _SENSITIVE_IDENTIFIER_CATEGORIES:
+            reason_boosts["sensitive_identifier_candidate"] = 0.20
         if "low_confidence_candidate" in reasons:
-            reason_boosts["low_confidence_candidate"] = 0.20
+            reason_boosts["low_confidence_candidate"] = 0.08 * (1.0 - confidence)
         if "overlap_suppressed_candidate" in reasons:
-            reason_boosts["overlap_suppressed_candidate"] = 0.18
+            reason_boosts["overlap_suppressed_candidate"] = 0.14
         for reason, reason_boost in reason_boosts.items():
             evidence[segment_id].append((reason_boost, reason))
 
