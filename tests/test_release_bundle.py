@@ -124,6 +124,8 @@ def test_split_release_separates_code_libraries_and_model_parts(tmp_path):
     with zipfile.ZipFile(libraries) as archive:
         assert '_internal/library.dll' in archive.namelist()
         assert '_internal/model/model.safetensors' not in archive.namelist()
+    with zipfile.ZipFile(model_zips[0]) as archive:
+        assert archive.namelist() == ['_internal/model-parts/model.safetensors.part001']
     assert all(path.stat().st_size < 900 * 1024**2 for path in (tmp_path / 'release').glob('*.zip'))
 
 

@@ -8,6 +8,10 @@ ZIP into the same new folder. Then double-click the EXE and keep its support
 folder beside it. The first model use verifies and rebuilds the local checkpoint.
 No Python installation or model download is needed.
 
+For split packages, the extracted model-part files must end up under
+`_internal\\model-parts` beside `_internal\\model-parts.json`; do not extract
+each archive into a separately named folder.
+
 Select a DOCX and click **Prepare review**. The default workspace is a
 `Transcript review` folder beside the input. It contains sensitive text and
 mappings: keep it private. The original DOCX is not changed.

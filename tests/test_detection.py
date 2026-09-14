@@ -41,6 +41,26 @@ def test_split_model_assets_reassemble_and_remove_parts(tmp_path, monkeypatch):
     assert not (tmp_path / 'model-parts.json').exists()
 
 
+def test_split_model_assets_accept_legacy_release_root_parts(tmp_path):
+    """v0.2.4 published its part folders beside, rather than inside, _internal."""
+    internal = tmp_path / "_internal"
+    model = internal / "model"
+    model.mkdir(parents=True)
+    payload = b"0123456789abcdef"
+    part = tmp_path / "model-parts" / "model.safetensors.part001"
+    part.parent.mkdir()
+    part.write_bytes(payload)
+    (internal / "model-parts.json").write_text(json.dumps({
+        "format": 1, "target": "model.safetensors", "bytes": len(payload),
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "parts": [{"name": part.name, "bytes": len(payload),
+                    "sha256": hashlib.sha256(payload).hexdigest()}],
+    }), encoding="utf-8")
+    detection_module._assemble_model_parts(model)
+    assert (model / "model.safetensors").read_bytes() == payload
+    assert not part.parent.exists()
+
+
 def test_rules_only_detects_direct_pii_and_preserves_alias_key() -> None:
     policy = _policy(aliases=[{"entity_key": "employee:anna", "aliases": ["Anna Müller", "A. Müller"]}])
     detector = Detector(policy, rules_only=True)

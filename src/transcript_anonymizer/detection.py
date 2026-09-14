@@ -651,6 +651,12 @@ def _assemble_model_parts(model_path: Path) -> None:
     if destination.is_file():
         return
     parts_root = model_path.parent / "model-parts"
+    # v0.2.4 placed parts beside `_internal`; retain that verified-only layout
+    # as a compatibility fallback so already-downloaded releases remain usable.
+    if not parts_root.is_dir():
+        legacy_parts_root = model_path.parent.parent / "model-parts"
+        if legacy_parts_root.is_dir():
+            parts_root = legacy_parts_root
     temporary = destination.with_suffix(destination.suffix + ".assembling")
     digest, size = hashlib.sha256(), 0
     try:

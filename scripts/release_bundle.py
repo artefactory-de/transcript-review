@@ -177,7 +177,7 @@ def make_split_release(root, out, version, *, part_limit=SPLIT_LIMIT):
     _write_zip(out / f'Transcript-Review-{version}-windows-x64-libraries.zip', libraries)
     for part in parts:
         package = out / f'Transcript-Review-{version}-windows-x64-model-assets-{part["name"][-3:]}.zip'
-        _write_zip(package, [(f'model-parts/{part["name"]}', part_dir / part['name'])])
+        _write_zip(package, [(f'_internal/model-parts/{part["name"]}', part_dir / part['name'])])
     shutil.rmtree(part_dir)
     for path in out.glob('*.zip'):
         if path.stat().st_size >= 900 * 1024**2:
