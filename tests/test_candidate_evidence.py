@@ -42,6 +42,8 @@ def proposals(label, value, text):
     ('person', 'Mhm.', 'Mhm.\nMhm.'),
     ('person', 'Gut.', 'Gut.\nGenau.'),
     ('person', 'Genau.', 'Genau.\nJa.'),
+    ('person', 'Schnittstellen', 'Die Schnittstellen sind dokumentiert.'),
+    ('person', 'dich', 'Ich sehe dich im Prozess.'),
     ('person', 'Z', 'Zuerst kommt der Buchstabe Z.'),
     ('person', 'Österreicher', 'Österreicher in Österreich nutzen andere Systeme.'),
     ('address', 'Österreich', 'Die Systeme laufen in Österreich und Frankreich.'),
@@ -69,6 +71,17 @@ def test_type_contradictions_do_not_become_replacements(label, value, text):
 ])
 def test_identifying_evidence_preserves_real_candidates(label, value, text):
     assert any(f['text'] == value for f in proposals(label, value, text))
+
+
+@pytest.mark.parametrize('value,text', [
+    ('C. H.', 'Der Prozess C. H. läuft manuell.'),
+    ('P. D. F.', 'Das steht in einem P. D. F. Dokument.'),
+])
+def test_bare_initials_remain_review_evidence_not_automatic_redactions(value, text):
+    detector = Detector(load_policy(None))
+    detector._model = ConfidentModel('person', value)
+    findings = detector.detect([{'id': 's1', 'text': text}])
+    assert findings and all(item.get('review_only') is True for item in findings)
 
 
 def test_rejected_role_cannot_seed_document_aliases():

@@ -218,6 +218,8 @@ _NONPERSON_RE = re.compile(
     r"|(?:chef(?:in|s)?|dezernent(?:en|in|innen)?|kontrolleur(?:e|en|in)?|dolmetsch[\w-]*)"
     r"|(?:kinder(?:n)?|leute(?:n)?|erwachsene[nrms]?|jugendliche[nrms]?|beide[nrms]?)"
     r"|(?:nutzer|benutzer|anwender)(?:in|innen|n)?|vorname[n]?|nachname[n]?"
+    r"|schnittstellen?(?:prozess(?:e)?)?|paragraphe?n?|dokumente?n?|formulare?n?"
+    r"|(?:ich|mich|mir|du|dich|dir|wir|uns|ihr|euch|er|ihn|ihm|sie|ihnen)"
     r"|(?:[A-Z]\.\s*)?\d+\s+ebene"
     r"|[\w-]*(?:system|werkzeug|programm|projekt|tool|bot)(?:[_-][\w-]+)*"
     r")(?!\w)"
@@ -322,8 +324,11 @@ def _model_evidence(category: str, text: str, start: int, end: int) -> str:
     if category == 'person' and not human:
         if len(value.rstrip('.')) == 1:
             return 'review'
-        if _INITIALS_RE.fullmatch(value) and _PROCESS_CONTEXT_RE.search(left):
-            return 'reject'
+        # Bare initials and acronym-like strings are ambiguous in transcripts:
+        # they can be people, but are frequently process/document shorthand.
+        # Keep them in the retained-passage queue rather than auto-redacting.
+        if _INITIALS_RE.fullmatch(value):
+            return 'review'
         if _NATIONALITY_RE.fullmatch(value) and re.match(r'(?iu)\s+in\s+(?:der\s+)?\w+', text[end:]):
             return 'reject'
     if category == 'address':
