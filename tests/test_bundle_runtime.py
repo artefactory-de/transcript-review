@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import struct
 from pathlib import Path
 
@@ -76,9 +77,11 @@ def test_runtime_inventory_rejects_missing_unknown_duplicate_and_non_x64_files(b
 
 def test_runtime_inventory_rejects_case_collisions_and_symlinks(builder, tmp_path):
     runtime = _runtime_dir(builder, tmp_path)
-    (runtime / "MSVCP140.DLL").write_bytes(_pe_x64())
-    with pytest.raises(builder.BuildError, match="duplicate"):
-        builder._runtime_inventory(runtime)
+    # Windows cannot create two directory entries that differ only by case.
+    if os.name != "nt":
+        (runtime / "MSVCP140.DLL").write_bytes(_pe_x64())
+        with pytest.raises(builder.BuildError, match="duplicate"):
+            builder._runtime_inventory(runtime)
 
     runtime = _runtime_dir(builder, tmp_path / "symlink")
     link = runtime / "LICENSE.txt"

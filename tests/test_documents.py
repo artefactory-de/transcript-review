@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import io
+import os
 import zipfile
 from pathlib import Path
 
 import pytest
 
-from transcript_anonymizer.documents import read_docx, validate_output, write_docx
+from transcript_anonymizer.documents import (
+    _validate_member_name,
+    read_docx,
+    validate_output,
+    write_docx,
+)
 from transcript_anonymizer.errors import AnonymizerError
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
@@ -120,6 +126,12 @@ def test_write_is_clean_and_round_trips_tables(tmp_path: Path) -> None:
     ["../outside.xml", "/absolute.xml", "word\\unsafe.xml"],
 )
 def test_rejects_unsafe_zip_paths(tmp_path: Path, member: str) -> None:
+    # ZipFile normalizes backslashes while creating an archive on Windows, so
+    # exercise the same validator directly for this platform-specific case.
+    if os.name == "nt" and "\\" in member:
+        with pytest.raises(AnonymizerError, match="unsafe package path"):
+            _validate_member_name(member)
+        return
     path = tmp_path / "unsafe.docx"
     _write(path, _package({member: b"x"}))
     with pytest.raises(AnonymizerError, match="unsafe package path"):
