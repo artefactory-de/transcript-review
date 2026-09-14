@@ -1,0 +1,91 @@
+name: Build release candidate
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing source tag (for example v0.2.0)
+        required: true
+      base_tag:
+        description: Prior public full release tag; empty for first release
+        required: false
+      draft:
+        description: Upload verified files to a draft release after approval
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: release-candidate
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      BASE_TAG: ${{ inputs.base_tag }}
+      PYTHONUTF8: '1'
+    steps:
+      - name: Validate tag inputs
+        shell: pwsh
+        run: |
+          if ($env:RELEASE_VERSION -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$') { throw 'Invalid version tag' }
+          if ($env:BASE_TAG -and $env:BASE_TAG -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$') { throw 'Invalid base tag' }
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: refs/tags/${{ inputs.version }}
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.12.10'
+      - run: python -m pip install uv==0.12.5
+      - run: uv sync --locked --extra model --extra build
+      - run: uv run python -m pytest --basetemp "${{ runner.temp }}/release-tests"
+      - run: uv run ruff check src scripts tests
+      - name: Require source licence for requested draft upload
+        if: ${{ inputs.draft }}
+        shell: pwsh
+        run: |
+          if (-not (Test-Path LICENSE -PathType Leaf)) { throw 'Source licence must be reviewed before draft upload' }
+      - name: Fetch explicit base and build
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $arguments = @('--version', $env:RELEASE_VERSION, '--work', "$env:RUNNER_TEMP/release-work")
+          if ($env:BASE_TAG) {
+            gh release download $env:BASE_TAG --pattern "Transcript-Review-$env:BASE_TAG-windows-x64-full.zip" --dir "$env:RUNNER_TEMP/base"
+            if ($LASTEXITCODE -ne 0) { throw 'Base download failed' }
+            $arguments += @('--base', "$env:RUNNER_TEMP/base/Transcript-Review-$env:BASE_TAG-windows-x64-full.zip")
+          }
+          uv run python scripts/ci_release.py @arguments
+          if ($LASTEXITCODE -ne 0) { throw 'Release checks failed' }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-candidate
+          path: ${{ runner.temp }}/release-work/release/
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
+  draft:
+    if: ${{ inputs.draft && vars.DISTRIBUTION_APPROVED == 'true' }}
+    needs: build
+    runs-on: ubuntu-24.04
+    environment: release-review
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Download this run's verified artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: gh run download "$RUN_ID" --name release-candidate --dir release
+      - name: Create draft only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ inputs.version }}
+        run: gh release create "$VERSION" release/* --verify-tag --draft --prerelease --title "$VERSION" --notes "Unsigned test candidate. Review checksums, notices and functional test results before publication."

@@ -1,0 +1,217 @@
+[
+  {
+    "id": "business-types",
+    "segments": [
+      {
+        "id": "s1",
+        "text": "Das Unternehmen ist ein DAX-Konzern."
+      },
+      {
+        "id": "s2",
+        "text": "Account Manager: Der Vorgang ist abgeschlossen."
+      },
+      {
+        "id": "s3",
+        "text": "Leitender Sachbearbeiter: Ich prüfe den Antrag."
+      },
+      {
+        "id": "s4",
+        "text": "Business Analyst: Wir dokumentieren den Ablauf."
+      },
+      {
+        "id": "s5",
+        "text": "Die Kundenberaterin verwendet SAP und Microsoft Teams."
+      },
+      {
+        "id": "s6",
+        "text": "Salesforce und ServiceNow bleiben unverändert."
+      },
+      {
+        "id": "s7",
+        "text": "Das System Atlas speichert den Vorgang."
+      },
+      {
+        "id": "s8",
+        "text": "Die Fachabteilung arbeitet mit dem Kernbanksystem."
+      },
+      {
+        "id": "s9",
+        "text": "Account Manager Anna Müller verwendet SAP."
+      },
+      {
+        "id": "s10",
+        "text": "Anna Müller spricht mit dem Kundenberater."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s9",
+        "start": 16,
+        "end": 27,
+        "category": "person"
+      },
+      {
+        "segment_id": "s10",
+        "start": 0,
+        "end": 11,
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "id": "time-not-birth",
+    "segments": [
+      {
+        "id": "s1",
+        "text": "[00:01:23] Sprecher 1: Wir beginnen."
+      },
+      {
+        "id": "s2",
+        "text": "Der Termin ist am 07.04.1983."
+      },
+      {
+        "id": "s3",
+        "text": "Wir prüfen morgen früh und nächste Woche."
+      },
+      {
+        "id": "s4",
+        "text": "Vor drei Jahren begann das Projekt."
+      },
+      {
+        "id": "s5",
+        "text": "Der Vorgang dauert 00:03:45."
+      },
+      {
+        "id": "s6",
+        "text": "Geburtsdatum: 07.04.1983."
+      },
+      {
+        "id": "s7",
+        "text": "Sie wurde am 7. April 1983 geboren."
+      },
+      {
+        "id": "s8",
+        "text": "Geburtsdatum wird später besprochen. [00:01:23]"
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s6",
+        "start": 14,
+        "end": 24,
+        "category": "date_of_birth"
+      },
+      {
+        "segment_id": "s7",
+        "start": 13,
+        "end": 26,
+        "category": "date_of_birth"
+      }
+    ]
+  },
+  {
+    "id": "local-aliases",
+    "segments": [
+      {
+        "id": "s1",
+        "text": "Anna Beispiel: Hallo."
+      },
+      {
+        "id": "s2",
+        "text": "Anna prüft den Vorgang."
+      },
+      {
+        "id": "s3",
+        "text": "A. Beispiel antwortet."
+      },
+      {
+        "id": "s4",
+        "text": "Beispiel bestätigt."
+      },
+      {
+        "id": "s5",
+        "text": "Anna Beispiel, genannt Anni, übernimmt."
+      },
+      {
+        "id": "s6",
+        "text": "Anni sagt zu."
+      },
+      {
+        "id": "s7",
+        "text": "Max_Muster   0:03\nHallo."
+      },
+      {
+        "id": "s8",
+        "text": "Max Muster prüft. Max antwortet. M. Muster stimmt zu."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s1",
+        "start": 0,
+        "end": 13,
+        "category": "person"
+      },
+      {
+        "segment_id": "s2",
+        "start": 0,
+        "end": 4,
+        "category": "person"
+      },
+      {
+        "segment_id": "s3",
+        "start": 0,
+        "end": 11,
+        "category": "person"
+      },
+      {
+        "segment_id": "s4",
+        "start": 0,
+        "end": 8,
+        "category": "person"
+      },
+      {
+        "segment_id": "s5",
+        "start": 0,
+        "end": 13,
+        "category": "person"
+      },
+      {
+        "segment_id": "s5",
+        "start": 23,
+        "end": 27,
+        "category": "person"
+      },
+      {
+        "segment_id": "s6",
+        "start": 0,
+        "end": 4,
+        "category": "person"
+      },
+      {
+        "segment_id": "s7",
+        "start": 0,
+        "end": 10,
+        "category": "person"
+      },
+      {
+        "segment_id": "s8",
+        "start": 0,
+        "end": 10,
+        "category": "person"
+      },
+      {
+        "segment_id": "s8",
+        "start": 18,
+        "end": 21,
+        "category": "person"
+      },
+      {
+        "segment_id": "s8",
+        "start": 33,
+        "end": 42,
+        "category": "person"
+      }
+    ]
+  }
+]

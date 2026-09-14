@@ -1,0 +1,16 @@
+[
+  {
+    "id": "synthetic-people-001",
+    "segments": [
+      {"id": "s000001", "text": "Alice met Bob."},
+      {"id": "s000002", "text": "Call 123456789."},
+      {"id": "s000003", "text": "Contact Carol."}
+    ],
+    "annotations": [
+      {"segment_id": "s000001", "start": 0, "end": 5, "category": "person"},
+      {"segment_id": "s000001", "start": 10, "end": 13, "category": "person"},
+      {"segment_id": "s000002", "start": 5, "end": 14, "category": "phone"},
+      {"segment_id": "s000003", "start": 8, "end": 13, "category": "person"}
+    ]
+  }
+]

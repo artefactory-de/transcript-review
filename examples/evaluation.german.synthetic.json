@@ -1,0 +1,153 @@
+[
+  {
+    "id": "synthetic-german-identifiers",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "00:00:01 Anna Beispiel: Bitte an anna@example.invalid schreiben."
+      },
+      {
+        "id": "s000002",
+        "text": "00:01:20 Max Muster: Telefon +49 30 12345678."
+      },
+      {
+        "id": "s000003",
+        "text": "Der Kunde heißt Jörg Müller."
+      },
+      {
+        "id": "s000004",
+        "text": "Kundennummer: K12345678, Depotnummer: D9876543."
+      },
+      {
+        "id": "s000005",
+        "text": "Die IBAN lautet DE89 3704 0044 0532 0130 00."
+      },
+      {
+        "id": "s000006",
+        "text": "Umsatz 10000000 Euro. Das System SAP bleibt unverändert."
+      },
+      {
+        "id": "s000007",
+        "text": "Der Workshop war am 13.09.2026 um 10:30 Uhr."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s000001",
+        "start": 9,
+        "end": 22,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000001",
+        "start": 33,
+        "end": 53,
+        "category": "email"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 9,
+        "end": 19,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 29,
+        "end": 44,
+        "category": "phone"
+      },
+      {
+        "segment_id": "s000003",
+        "start": 16,
+        "end": 27,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000004",
+        "start": 14,
+        "end": 23,
+        "category": "customer_id"
+      },
+      {
+        "segment_id": "s000004",
+        "start": 38,
+        "end": 46,
+        "category": "depot_id"
+      },
+      {
+        "segment_id": "s000005",
+        "start": 16,
+        "end": 43,
+        "category": "iban"
+      }
+    ]
+  },
+  {
+    "id": "synthetic-german-review",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "Frau Eva Sommer spricht mit Herrn Karl Winter."
+      },
+      {
+        "id": "s000002",
+        "text": "Bitte unter eva.sommer@example.invalid oder 030 98765432 melden."
+      },
+      {
+        "id": "s000003",
+        "text": "Die Depotnummer bleibt unverändert."
+      },
+      {
+        "id": "s000004",
+        "text": "Ab einem Volumen von 50000000 Euro wird erneut geprüft."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s000001",
+        "start": 5,
+        "end": 15,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000001",
+        "start": 34,
+        "end": 45,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 12,
+        "end": 38,
+        "category": "email"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 44,
+        "end": 56,
+        "category": "phone"
+      }
+    ]
+  },
+  {
+    "id": "synthetic-german-long-tail",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Die Prüfung wird dokumentiert. Kontaktperson ist Lisa Testmann."
+      },
+      {
+        "id": "s000002",
+        "text": "Es folgt die abschließende Kontrolle."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s000001",
+        "start": 2498,
+        "end": 2511,
+        "category": "person"
+      }
+    ]
+  }
+]

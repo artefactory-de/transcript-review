@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "repository": "fastino/gliner2-privacy-filter-PII-multi",
+  "revision": "c153999da5f4c509df4322b0c6a1baf3d2c284d7",
+  "license": "Apache-2.0",
+  "loader": {
+    "package": "gliner2",
+    "version": "2.0.0",
+    "transformers": ">=4.38,<5",
+    "torch": ">=2.1,<3",
+    "protobuf": ">=4,<7",
+    "entrypoint": "AutoExtractor.from_pretrained"
+  },
+  "files": [
+    {
+      "path": "config.json",
+      "size": 252,
+      "sha256": "164f17362bcf9d114067d3465e7374bfdd79ce6b605acb745de5a49dabb9595c"
+    },
+    {
+      "path": "encoder_config/config.json",
+      "size": 895,
+      "sha256": "f27dd63cc43a248d2566f0b6ad7a115db353676ce0561dcbca45bac766464c1a"
+    },
+    {
+      "path": "model.safetensors",
+      "size": 1228421964,
+      "sha256": "0280f6f39f6012da50b6640bad438d9b7e763a1b0102094115d1b710c4dd79b6",
+      "hash_source": "Hugging Face Hub LFS oid from immutable revision metadata"
+    },
+    {
+      "path": "tokenizer.json",
+      "size": 16020604,
+      "sha256": "f6df10ec83bea993035b2dd7c39345a3d4fcf23421c2adb6cb4ffc1e6d1bc4b5",
+      "hash_source": "Hugging Face Hub LFS oid from immutable revision metadata"
+    },
+    {
+      "path": "tokenizer_config.json",
+      "size": 711,
+      "sha256": "233beed1f1095cccfc7907cde31a8d90a0c6aa4fdfaf6493f8e55fd162e81ae6"
+    }
+  ]
+}

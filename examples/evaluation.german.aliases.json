@@ -1,0 +1,44 @@
+[
+  {
+    "id": "synthetic-german-aliases",
+    "metadata": {
+      "purpose": "Synthetic alias and structural speaker diagnostics",
+      "identity_expectations": {
+        "full_name": "same full speaker name should be one structural group",
+        "underscore_header": "timestamp-after-identifier form is structural",
+        "titled_name": "title plus name remains a person candidate",
+        "initial": "initial forms are review evidence unless explicitly listed",
+        "short_first_name": "short forms are not inferred identity merges",
+        "nickname": "nicknames require an explicit alias entry",
+        "shared_surname": "same surname for two people stays ambiguous",
+        "unicode_case_spacing": "matching preserves source offsets",
+        "benign_collision": "common process nouns are not names"
+      }
+    },
+    "segments": [
+      {"id": "s1", "text": "Anna Beispiel: Guten Morgen."},
+      {"id": "s2", "text": "Anna Beispiel meldet sich später."},
+      {"id": "s3", "text": "\nMax_Muster   0:03\nIch übernehme den Vorgang."},
+      {"id": "s4", "text": "Dr. Eva Keller: Die Prüfung ist abgeschlossen."},
+      {"id": "s5", "text": "A. Beispiel und Anna sprechen kurz."},
+      {"id": "s6", "text": "Anna fragt nach. Anni bestätigt."},
+      {"id": "s7", "text": "Frau Müller beginnt, Herr Müller antwortet."},
+      {"id": "s8", "text": "MÜLLER prüft die Datei; müller bleibt unklar."},
+      {"id": "s9", "text": "Der Kunde prüft den Vorgang. Die Bank bleibt unverändert."}
+    ],
+    "annotations": [
+      {"segment_id": "s1", "start": 0, "end": 13, "category": "person"},
+      {"segment_id": "s2", "start": 0, "end": 13, "category": "person"},
+      {"segment_id": "s3", "start": 1, "end": 11, "category": "person"},
+      {"segment_id": "s4", "start": 4, "end": 14, "category": "person"},
+      {"segment_id": "s5", "start": 0, "end": 11, "category": "person"},
+      {"segment_id": "s5", "start": 16, "end": 20, "category": "person"},
+      {"segment_id": "s6", "start": 0, "end": 4, "category": "person"},
+      {"segment_id": "s6", "start": 17, "end": 21, "category": "person"},
+      {"segment_id": "s7", "start": 5, "end": 11, "category": "person"},
+      {"segment_id": "s7", "start": 26, "end": 32, "category": "person"},
+      {"segment_id": "s8", "start": 0, "end": 6, "category": "person"},
+      {"segment_id": "s8", "start": 24, "end": 30, "category": "person"}
+    ]
+  }
+]

@@ -1,0 +1,349 @@
+[
+  {
+    "id": "challenge-speakers",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "[00:00:03] Nora Albrecht: Wir prüfen zuerst den Antrag."
+      },
+      {
+        "id": "s000002",
+        "text": "Die Freigabe erfolgt ab 250000 Euro."
+      },
+      {
+        "id": "s000003",
+        "text": "[00:00:18] Cem Yilmaz: Nora Albrecht übernimmt die Kontrolle."
+      },
+      {
+        "id": "s000004",
+        "text": "Cem Yilmaz dokumentiert anschließend das Ergebnis."
+      },
+      {
+        "id": "s000005",
+        "text": "Sprecher 1: Das System heißt SAP."
+      },
+      {
+        "id": "s000006",
+        "text": "Die zweite Prüfung erfolgt im Vier-Augen-Prinzip."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s000001",
+        "start": 11,
+        "end": 24,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000003",
+        "start": 11,
+        "end": 21,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000003",
+        "start": 23,
+        "end": 36,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000004",
+        "start": 0,
+        "end": 10,
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "id": "challenge-adjacent",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "Die zuständige Ansprechpartnerin heißt"
+      },
+      {
+        "id": "s000002",
+        "text": "Miriam König."
+      },
+      {
+        "id": "s000003",
+        "text": "Sie ist unter m.koenig@example.invalid erreichbar."
+      },
+      {
+        "id": "s000004",
+        "text": "Das nächste Feld enthält den Namen des Antragstellers."
+      },
+      {
+        "id": "s000005",
+        "text": "Rafael dos Santos"
+      },
+      {
+        "id": "s000006",
+        "text": "Die Antragsnummer ist kein Personenname."
+      },
+      {
+        "id": "s000007",
+        "text": "Rückfragen bitte an Herrn O'Connor richten."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s000002",
+        "start": 0,
+        "end": 12,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000003",
+        "start": 14,
+        "end": 38,
+        "category": "email"
+      },
+      {
+        "segment_id": "s000005",
+        "start": 0,
+        "end": 17,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000007",
+        "start": 26,
+        "end": 34,
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "id": "challenge-ambiguous",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "00:00:05 Peter Braun: Wir beginnen mit der Prüfung."
+      },
+      {
+        "id": "s000002",
+        "text": "00:00:09 Petra Braun: Ich übernehme die Rückfrage."
+      },
+      {
+        "id": "s000003",
+        "text": "Herr Braun hat dazu bereits eine E-Mail geschickt."
+      },
+      {
+        "id": "s000004",
+        "text": "Der Ordner ist braun. Die nächste Kontrolle findet im Winter statt."
+      },
+      {
+        "id": "s000005",
+        "text": "Frau Winter übernimmt die Kontrolle."
+      },
+      {
+        "id": "s000006",
+        "text": "Das Produkt Apple Pay bleibt unverändert."
+      },
+      {
+        "id": "s000007",
+        "text": "Die Organisation Deutsche Bank verwendet ein separates System."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s000001",
+        "start": 9,
+        "end": 20,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 9,
+        "end": 20,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000003",
+        "start": 5,
+        "end": 10,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000005",
+        "start": 5,
+        "end": 11,
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "id": "challenge-identifiers",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "Kontakt: pruefung@example.invalid; Ersatz: team@example.invalid."
+      },
+      {
+        "id": "s000002",
+        "text": "Telefon: +49 (0) 69 1234567, mobil +49 170 1234567."
+      },
+      {
+        "id": "s000003",
+        "text": "Kundennummer K55443322 und Depotnummer D11223344 gehören zum Antrag."
+      },
+      {
+        "id": "s000004",
+        "text": "Kontonummer: 1234567890."
+      },
+      {
+        "id": "s000005",
+        "text": "Die IBAN ist DE89 3704 0044 0532 0130 00."
+      },
+      {
+        "id": "s000006",
+        "text": "Das Geschäftsvolumen beträgt 1234567890 Euro bei 3,5 Prozent."
+      },
+      {
+        "id": "s000007",
+        "text": "Der Workshop findet am 15.10.2026 statt; Version 2.4 bleibt aktiv."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s000001",
+        "start": 9,
+        "end": 33,
+        "category": "email"
+      },
+      {
+        "segment_id": "s000001",
+        "start": 43,
+        "end": 63,
+        "category": "email"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 9,
+        "end": 27,
+        "category": "phone"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 35,
+        "end": 50,
+        "category": "phone"
+      },
+      {
+        "segment_id": "s000003",
+        "start": 13,
+        "end": 22,
+        "category": "customer_id"
+      },
+      {
+        "segment_id": "s000003",
+        "start": 39,
+        "end": 48,
+        "category": "depot_id"
+      },
+      {
+        "segment_id": "s000004",
+        "start": 13,
+        "end": 23,
+        "category": "account_id"
+      },
+      {
+        "segment_id": "s000005",
+        "start": 13,
+        "end": 40,
+        "category": "iban"
+      }
+    ]
+  },
+  {
+    "id": "challenge-names-context",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "Bitte die Unterlagen an Dr. Leonie Weiß weitergeben."
+      },
+      {
+        "id": "s000002",
+        "text": "Danach spricht Herr Hans-Jürgen Neumann mit Frau Zoë Richter."
+      },
+      {
+        "id": "s000003",
+        "text": "Die Anschrift lautet Lindenweg 17, 12345 Beispielstadt."
+      },
+      {
+        "id": "s000004",
+        "text": "Geburtsdatum des Kunden: 07.04.1983."
+      },
+      {
+        "id": "s000005",
+        "text": "Die Kundenberaterin ist heute nicht im Büro."
+      },
+      {
+        "id": "s000006",
+        "text": "Die Niederlassung Frankfurt verwendet dieselbe Checkliste."
+      }
+    ],
+    "annotations": [
+      {
+        "segment_id": "s000001",
+        "start": 28,
+        "end": 39,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 20,
+        "end": 39,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000002",
+        "start": 49,
+        "end": 60,
+        "category": "person"
+      },
+      {
+        "segment_id": "s000003",
+        "start": 21,
+        "end": 54,
+        "category": "address"
+      },
+      {
+        "segment_id": "s000004",
+        "start": 25,
+        "end": 35,
+        "category": "date_of_birth"
+      }
+    ]
+  },
+  {
+    "id": "challenge-clean",
+    "segments": [
+      {
+        "id": "s000001",
+        "text": "Die Prüfung beginnt nach Eingang aller Unterlagen."
+      },
+      {
+        "id": "s000002",
+        "text": "Zwei Personen müssen den Antrag freigeben."
+      },
+      {
+        "id": "s000003",
+        "text": "Ein Mitarbeiter bearbeitet durchschnittlich 20 Fälle pro Woche."
+      },
+      {
+        "id": "s000004",
+        "text": "Bei einem Betrag über 500000 Euro ist eine weitere Freigabe erforderlich."
+      },
+      {
+        "id": "s000005",
+        "text": "Das Datum der letzten Systemänderung ist der 01.02.2026."
+      },
+      {
+        "id": "s000006",
+        "text": "Der Status wechselt von offen auf geprüft."
+      }
+    ],
+    "annotations": []
+  }
+]
