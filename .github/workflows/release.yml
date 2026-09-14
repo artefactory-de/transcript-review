@@ -75,7 +75,6 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     needs: build
     runs-on: ubuntu-24.04
-    environment: release-review
     permissions:
       contents: write
       actions: read
