@@ -1,6 +1,8 @@
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 _SPEC = importlib.util.spec_from_file_location("stanza_runner", Path(__file__).parents[1] / "scripts" / "benchmarks" / "stanza_runner.py")
 assert _SPEC is not None and _SPEC.loader is not None
 _MODULE = importlib.util.module_from_spec(_SPEC)
@@ -72,8 +74,6 @@ def test_stanza_adapter_rejects_malformed_offsets_and_text() -> None:
             return type("Document", (), {"entities": [self.entity]})()
 
     document = [{"id": "d1", "segments": [{"id": "s1", "text": "Anna Bank Berlin"}]}]
-    import pytest
-
     with pytest.raises(ValueError, match="non-integer"):
         _stanza_findings(Pipeline(BadOffsetEntity()), document, "conll03")
     with pytest.raises(ValueError, match="does not match"):
@@ -81,8 +81,8 @@ def test_stanza_adapter_rejects_malformed_offsets_and_text() -> None:
 
 
 def test_numpy_checkpoint_context_restores_safe_globals() -> None:
-    import numpy as np
-    import torch
+    np = pytest.importorskip("numpy")
+    torch = pytest.importorskip("torch")
     from numpy.core.multiarray import _reconstruct
 
     original = set(torch.serialization.get_safe_globals())

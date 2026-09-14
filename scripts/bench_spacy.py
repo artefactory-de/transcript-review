@@ -14,13 +14,17 @@ import hashlib
 import json
 import os
 import re
-import resource
 import socket
 import sys
 import time
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
+
+try:
+    import resource
+except ImportError:  # Windows does not provide the POSIX resource module.
+    resource = None
 
 # Verified against the official spaCy model metadata.  Keep these URLs in the
 # experiment record so a later comparison does not lose the exact artifact.
@@ -49,9 +53,29 @@ def _repo_src() -> Path:
 
 
 def _rss_bytes() -> int:
-    # Linux reports KiB.  Keep the conversion here rather than depending on a
-    # third-party process monitor in the isolated benchmark environment.
-    return int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) * 1024
+    """Return peak resident memory without requiring an extra dependency."""
+
+    if resource is not None:
+        # Linux reports KiB; macOS reports bytes.
+        peak = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        return peak * 1024 if sys.platform.startswith("linux") else peak
+    if os.name == "nt":
+        import ctypes
+
+        class _Counters(ctypes.Structure):
+            _fields_ = [("cb", ctypes.c_ulong), ("PageFaultCount", ctypes.c_ulong),
+                       ("PeakWorkingSetSize", ctypes.c_size_t), ("WorkingSetSize", ctypes.c_size_t),
+                       ("QuotaPeakPagedPoolUsage", ctypes.c_size_t), ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                       ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t), ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                       ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
+
+        counters = _Counters()
+        if not ctypes.windll.psapi.GetProcessMemoryInfo(
+            ctypes.windll.kernel32.GetCurrentProcess(), ctypes.byref(counters), ctypes.sizeof(counters)
+        ):
+            raise OSError("could not determine process memory")
+        return int(counters.PeakWorkingSetSize)
+    raise RuntimeError("peak memory measurement is unavailable on this platform")
 
 
 def _block_network() -> None:

@@ -8,13 +8,17 @@ import hashlib
 import importlib.metadata
 import json
 import os
-import resource
 import socket
 import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
+
+try:
+    import resource
+except ImportError:  # Windows does not provide the POSIX resource module.
+    resource = None
 
 MODEL_REPOSITORY = "stanfordnlp/stanza-de"
 MODEL_REVISION = "47008d32ed8ae28bd955e74984230617eccfd4c3"
@@ -38,7 +42,28 @@ PINNED_ASSET_SHA256 = {
 
 
 def _rss_bytes() -> int:
-    return int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) * 1024
+    """Return peak resident memory without requiring an extra dependency."""
+
+    if resource is not None:
+        peak = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+        return peak * 1024 if sys.platform.startswith("linux") else peak
+    if os.name == "nt":
+        import ctypes
+
+        class _Counters(ctypes.Structure):
+            _fields_ = [("cb", ctypes.c_ulong), ("PageFaultCount", ctypes.c_ulong),
+                       ("PeakWorkingSetSize", ctypes.c_size_t), ("WorkingSetSize", ctypes.c_size_t),
+                       ("QuotaPeakPagedPoolUsage", ctypes.c_size_t), ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                       ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t), ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                       ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
+
+        counters = _Counters()
+        if not ctypes.windll.psapi.GetProcessMemoryInfo(
+            ctypes.windll.kernel32.GetCurrentProcess(), ctypes.byref(counters), ctypes.sizeof(counters)
+        ):
+            raise OSError("could not determine process memory")
+        return int(counters.PeakWorkingSetSize)
+    raise RuntimeError("peak memory measurement is unavailable on this platform")
 
 
 def _offline_environment() -> None:
