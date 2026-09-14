@@ -12,6 +12,9 @@
 - Favor identifier coverage over perfect identity linking. Link clear local variants
   and explicit aliases where evidenced; do not infer arbitrary nickname equivalence.
 - No hosted inference, runtime model downloads, telemetry or automatic uploads.
+- Validate model labels against identifier syntax and local context. Generic roles,
+  field labels and tool names are not identifiers. Weak handle/location evidence
+  goes to ranked review, not automatic replacement or alias propagation.
 
 ## Review and export
 

@@ -202,8 +202,8 @@ _CONTEXT_CURRENT_CHARS = 4096
 # Whole matched role/system spans are excluded; a name alongside them stays in scope.
 _NONPERSON_RE = re.compile(
     r"(?iu)(?<!\w)(?:"
-    r"(?:(?:senior|junior|leitende[rns]?|zuständige[rns]?|verantwortliche[rns]?|key|account|relationship|business|risk|credit|product|project|team|it)[ -]+)*"
-    r"(?:[\w-]*(?:berater|bearbeiter|mitarbeiter|prüfer|leiter|entwickler)(?:in|innen|n)?|manager|analyst|administrator|developer|engineer|owner|lead|scrum master)"
+    r"(?:(?:senior|junior|leitende[rns]?|zuständige[rns]?|verantwortliche[rns]?|key|account|relationship|business|risk|credit|product|project|team|it|group|regional|operations|kredit)[ -]+)*"
+    r"(?:[\w-]*(?:berater|bearbeiter|mitarbeiter|prüfer|leiter|entwickler|spezialist)(?:in|innen|n)?|manager|analyst|administrator|developer|engineer|owner|lead|scrum master)(?:[_-]\d+)?"
     r"|(?:dax|mdax|sdax|tec-dax)[ -]?(?:konzern|unternehmen)"
     r"|[\w-]*(?:konzern|unternehmen|gesellschaft|abteilung|banksystem|datenbank|plattform|software)"
     r"|(?:front|back|middle)[ -]office|vier[ -]augen[ -]prinzip"
@@ -213,6 +213,12 @@ _NONPERSON_RE = re.compile(
     r"|kund(?:e|en|in|innen)|moderator(?:in)?|interviewer(?:in)?"
     r"|(?:speaker|sprecher(?:in)?|teilnehmer(?:in)?)[ _-]*\d+"
     r"|(?:eine?|zwei|drei|mehrere|viele|alle|\d+)\s+personen?"
+    r"|[\w-]*(?:vorstand|vorstände|leitungsebene|kompetenzträger|konzernmutter|konzerntochter)"
+    r"|(?:chef(?:in|s)?|dezernent(?:en|in|innen)?|kontrolleur(?:e|en|in)?|dolmetsch[\w-]*)"
+    r"|(?:kinder(?:n)?|leute(?:n)?|erwachsene[nrms]?|jugendliche[nrms]?|beide[nrms]?)"
+    r"|(?:nutzer|benutzer|anwender)(?:in|innen|n)?|vorname[n]?|nachname[n]?"
+    r"|(?:[A-Z]\.\s*)?\d+\s+ebene"
+    r"|[\w-]*(?:system|werkzeug|programm|projekt|tool|bot)(?:[_-][\w-]+)*"
     r")(?!\w)"
 )
 _SYSTEM_NAME_RE = re.compile(
@@ -236,16 +242,94 @@ _HUMAN_CONTEXT_RE = re.compile(
     r"(?iu)^\s*(?:fragt|sagt|meint|prüft|antwortet|bestätigt|übernimmt|spricht|meldet|stimmt|erklärt|entscheidet)\b"
 )
 _AMBIGUOUS_NAMES = {'beispiel', 'muster', 'winter', 'sommer', 'frühling', 'herbst', 'keller', 'braun', 'weiß', 'weiss', 'mai', 'mark', 'will', 'kraft', 'könig'}
+_HONORIFIC_RE = re.compile(r'(?iu)\b(?:herrn?|frau|dr\.|prof\.)\s*$')
+_DISCOURSE_LINE_RE = re.compile(
+    r'(?imu)^[ \t]*(?:(?:hi|hallo|tschüss|tschuess|danke|okay|yup|yeah|no)[ \t.!?,]*)+$'
+)
+_NAMED_OBJECT_RE = re.compile(
+    r'(?iu)\b(?:das(?:\s+(?:system|programm|projekt|tool|verfahren))?|die\s+(?:software|anwendung))'
+    r'\s+(?:nennt\s+sich|heißt|heisst)\s+["„]?(?P<name>[\w-]+)'
+)
+_FIELD_LABEL_RE = re.compile(
+    r'(?iu)^(?:[\w-]*(?:nummer|kennung|konto|[ -]id)|(?:account|customer|reference)[ -]?(?:number|id))$'
+)
+_INITIALS_RE = re.compile(r'(?u)^(?:[A-ZÄÖÜ]\.\s*)+(?:de\.)?$')
+_PROCESS_CONTEXT_RE = re.compile(r'(?iu)\b(?:[\w-]*(?:prozess[\w-]*|bearbeitungen)|varianten|abkürzungen)\b')
+_NATIONALITY_RE = re.compile(r'(?iu)^(?:schweizer|österreicher|deutsche|franzosen|briten|amerikaner)(?:n|r|s)?$')
+_RESIDENTIAL_CONTEXT_RE = re.compile(
+    r'(?iu)\b(?:wohnort|wohnadresse|privatadresse|anschrift|postanschrift|wohnhaft|wohnt|wohne|wohnst|'
+    r'lebt|lebe|lebst|home\s+address|lives?|resides?|adresse\s*(?:ist|lautet|:))\b'
+)
+_HANDLE_RE = re.compile(r'(?u)^@?[\w](?:[\w.+-]{0,62}[\w])?$')
+_OBFUSCATED_EMAIL_RE = re.compile(r'(?iu)\w+\s*(?:\[at\]|\(at\)|\bat\b)\s*\w+.*(?:\[dot\]|\(dot\)|\bdot\b|\.)\s*\w+')
 
 
 def _nonperson_spans(text: str) -> list[tuple[int, int]]:
-    return [m.span() for m in _NONPERSON_RE.finditer(text)] + [
-        m.span('name') for pattern in (_SYSTEM_NAME_RE, _COMMON_NOUN_RE) for m in pattern.finditer(text)
+    return [m.span() for pattern in (_NONPERSON_RE, _DISCOURSE_LINE_RE) for m in pattern.finditer(text)] + [
+        m.span('name') for pattern in (_SYSTEM_NAME_RE, _COMMON_NOUN_RE, _NAMED_OBJECT_RE) for m in pattern.finditer(text)
     ]
 
 
 def _is_nonperson(text: str, start: int, end: int) -> bool:
-    return any(left <= start and end <= right for left, right in _nonperson_spans(text))
+    if _HONORIFIC_RE.search(text[max(0, start - 25):start]):
+        return False
+    # Composite labels can span several adjacent role/system matches. Require
+    # every word to be explained; never suppress an adjacent personal name.
+    remaining = list(text[start:end])
+    for left, right in _nonperson_spans(text):
+        for index in range(max(left, start), min(right, end)):
+            remaining[index - start] = ' '
+    return not any(char.isalnum() for char in remaining)
+
+
+def _model_evidence(category: str, text: str, start: int, end: int) -> str:
+    """Return propose, review or reject using type evidence, not model confidence.
+
+    Impossible types are rejected. Plausible but weakly grounded identifiers stay
+    in retained-passage review and cannot seed automatic name propagation.
+    """
+    value = text[start:end].strip()
+    left = text[max(0, start - 120):start]
+    human = bool(_HONORIFIC_RE.search(left))
+    login = bool(_LOGIN_CONTEXT_RE.search(left))
+    if category in {'person', 'username', 'account_id', 'customer_id', 'depot_id'}:
+        if _is_nonperson(text, start, end) and not (category == 'username' and login):
+            return 'reject'
+    if category == 'email':
+        if _EMAIL_RE.fullmatch(value) or _OBFUSCATED_EMAIL_RE.fullmatch(value):
+            return 'propose'
+        return 'review' if '@' in value else 'reject'
+    if category == 'iban':
+        if _iban_valid(value):
+            return 'propose'
+        compact = re.sub(r'\s|-', '', value)
+        # A transcription error in a checksum does not make an account public.
+        return 'propose' if re.fullmatch(r'(?i)[A-Z]{2}\d{2}[A-Z0-9]{11,30}', compact) else 'reject'
+    if category in {'account_id', 'customer_id', 'depot_id'}:
+        if _FIELD_LABEL_RE.fullmatch(value):
+            return 'reject'
+        if any(char.isdigit() for char in value) and re.fullmatch(r'[\w ./-]{3,64}', value):
+            return 'propose'
+        return 'review' if _HANDLE_RE.fullmatch(value) else 'reject'
+    if category == 'username':
+        if not _HANDLE_RE.fullmatch(value):
+            return 'reject'
+        if login or value.startswith('@') or any(char.isdigit() for char in value) or '_' in value or '.' in value:
+            return 'propose'
+        return 'review'
+    if category == 'person' and not human:
+        if len(value.rstrip('.')) == 1:
+            return 'review'
+        if _INITIALS_RE.fullmatch(value) and _PROCESS_CONTEXT_RE.search(left):
+            return 'reject'
+        if _NATIONALITY_RE.fullmatch(value) and re.match(r'(?iu)\s+in\s+(?:der\s+)?\w+', text[end:]):
+            return 'reject'
+    if category == 'address':
+        local_context = re.split(r'[.!?;\n]', left)[-1]
+        if any(char.isdigit() for char in value) or _RESIDENTIAL_CONTEXT_RE.search(local_context + value):
+            return 'propose'
+        return 'review'
+    return 'propose'
 
 
 def _birth_context(text: str, start: int, end: int) -> bool:
@@ -550,7 +634,7 @@ class Detector:
         self.metadata: dict[str, Any] = {
             "schema_version": 1,
             "metadata_version": 2,
-            "detector_version": "quality-v3",
+            "detector_version": "quality-v4",
             "policy_version": self.policy.get("schema_version", 1),
             "rules": "builtin-v2",
             "rules_only": rules_only,
@@ -1077,15 +1161,14 @@ class Detector:
                     raise _error("Local model span does not match its text")
                 if any(m.start() <= local_start and local_end <= m.end() for m in _CLOCK_RE.finditer(chunk)):
                     continue
-                if category in {'person', 'username'} and _is_nonperson(chunk, local_start, local_end) and not (
-                    category == 'username' and _LOGIN_CONTEXT_RE.search(chunk[max(0, local_start - 60):local_start])
-                ):
+                evidence = _model_evidence(category, source, chunk_start + local_start, chunk_start + local_end)
+                if evidence == 'reject':
                     continue
-                if category == 'date_of_birth' and not _birth_context(chunk, local_start, local_end):
+                if category == 'date_of_birth' and not _birth_context(source, chunk_start + local_start, chunk_start + local_end):
                     continue
                 output.append(_finding(
                     segment_id, source, chunk_start + local_start, chunk_start + local_end,
-                    category, score, detector, entity_key, review_only=score < proposal_threshold,
+                    category, score, detector, entity_key, review_only=evidence == 'review' or score < proposal_threshold,
                 ))
         return output
 
