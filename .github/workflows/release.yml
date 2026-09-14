@@ -57,10 +57,17 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           $arguments = @('--version', $env:RELEASE_VERSION, '--work', "$env:RUNNER_TEMP/release-work")
-          if ($env:BASE_TAG) {
-            gh release download $env:BASE_TAG --pattern "Transcript-Review-$env:BASE_TAG-windows-x64-full.zip" --dir "$env:RUNNER_TEMP/base"
+          $baseTag = $env:BASE_TAG
+          if (-not $baseTag) {
+            # Tag pushes publish automatically.  Use the most recent existing
+            # public release as their update base; the current tag cannot yet
+            # have a release at this stage.
+            $baseTag = gh release list --limit 100 --json tagName,isDraft --jq '[.[] | select(.isDraft == false) | .tagName][0]'
+          }
+          if ($baseTag) {
+            gh release download $baseTag --pattern "Transcript-Review-$baseTag-windows-x64-full.zip" --dir "$env:RUNNER_TEMP/base"
             if ($LASTEXITCODE -ne 0) { throw 'Base download failed' }
-            $arguments += @('--base', "$env:RUNNER_TEMP/base/Transcript-Review-$env:BASE_TAG-windows-x64-full.zip")
+            $arguments += @('--base', "$env:RUNNER_TEMP/base/Transcript-Review-$baseTag-windows-x64-full.zip")
           }
           uv run python scripts/ci_release.py @arguments
           if ($LASTEXITCODE -ne 0) { throw 'Release checks failed' }
