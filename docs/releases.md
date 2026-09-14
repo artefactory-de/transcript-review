@@ -1,8 +1,10 @@
 # Releases
 
-Run **Build release candidate** against an existing version tag. The workflow
-builds a Windows x64 application with pinned dependencies, model and runtime,
-then tests the frozen review/import/sign-off/export cycle.
+Push a version tag such as `v1.2.3`. The workflow builds a Windows x64
+application with pinned dependencies, model and runtime, tests the frozen
+review/import/sign-off/export cycle, then publishes the release if every check
+passes. Run **Build release candidate** manually when an unpublished candidate
+is needed.
 
 - **Code ZIP:** executable, documentation, notices and installation metadata.
 - **Libraries ZIP:** bundled Python and native libraries.
@@ -20,11 +22,6 @@ folders outside the installation.
 
 ## Publish
 
-Build artifacts are retained for three days. Draft upload requires the `draft`
-option, `LICENSE`, the `DISTRIBUTION_APPROVED=true` repository variable and a
-`release-review` environment with required reviewers. Configure that environment
-before enabling draft upload.
-
-The workflow never publishes automatically. Review the exact files, licences,
-checksums and functional test results before publishing a draft. Automated tests
-do not establish redaction quality or compatibility with every Windows system.
+Build artifacts are retained for three days. Tag-triggered publication uploads
+the verified files as a public release. Automated tests do not establish
+redaction quality or compatibility with every Windows system.

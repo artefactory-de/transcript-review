@@ -1,5 +1,8 @@
 name: Build release candidate
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       version:
@@ -22,7 +25,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 90
     env:
-      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_VERSION: ${{ inputs.version || github.ref_name }}
       BASE_TAG: ${{ inputs.base_tag }}
       PYTHONUTF8: '1'
     steps:
@@ -33,7 +36,7 @@ jobs:
           if ($env:BASE_TAG -and $env:BASE_TAG -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$') { throw 'Invalid base tag' }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: refs/tags/${{ inputs.version }}
+          ref: refs/tags/${{ inputs.version || github.ref_name }}
           persist-credentials: false
       - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
@@ -68,8 +71,8 @@ jobs:
           compression-level: 0
           retention-days: 3
           if-no-files-found: error
-  draft:
-    if: ${{ inputs.draft && vars.DISTRIBUTION_APPROVED == 'true' }}
+  publish:
+    if: ${{ github.event_name == 'push' }}
     needs: build
     runs-on: ubuntu-24.04
     environment: release-review
@@ -83,9 +86,9 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
         run: gh run download "$RUN_ID" --name release-candidate --dir release
-      - name: Create draft only
+      - name: Publish verified release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          VERSION: ${{ inputs.version }}
-        run: gh release create "$VERSION" release/* --verify-tag --draft --prerelease --title "$VERSION" --notes "Unsigned test candidate. Review checksums, notices and functional test results before publication."
+          VERSION: ${{ github.ref_name }}
+        run: gh release create "$VERSION" release/* --verify-tag --title "$VERSION" --notes "Extract the Code, Libraries and every Model Assets ZIP into the same folder. Verify downloaded files with SHA256SUMS.txt."
