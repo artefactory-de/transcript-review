@@ -39,6 +39,9 @@ def proposals(label, value, text):
     ('username', 'Automationswerkzeug_7', 'Das Automationswerkzeug_7 startet.'),
     ('person', 'Nimbus', 'Das Programm nennt sich Nimbus.'),
     ('person', 'P. Q.', 'Die Prozessvarianten heißen P. Q. und R. S.'),
+    ('person', 'Mhm.', 'Mhm.\nMhm.'),
+    ('person', 'Gut.', 'Gut.\nGenau.'),
+    ('person', 'Genau.', 'Genau.\nJa.'),
     ('person', 'Z', 'Zuerst kommt der Buchstabe Z.'),
     ('person', 'Österreicher', 'Österreicher in Österreich nutzen andere Systeme.'),
     ('address', 'Österreich', 'Die Systeme laufen in Österreich und Frankreich.'),
@@ -76,6 +79,16 @@ def test_rejected_role_cannot_seed_document_aliases():
         {'id': 's2', 'text': 'Regional ist der Geltungsbereich.'},
     ])
     assert not [f for f in findings if not f.get('review_only')]
+
+
+def test_model_false_full_name_cannot_seed_document_aliases():
+    detector = Detector(load_policy(None))
+    detector._model = ConfidentModel('person', 'Mhm. Mhm.')
+    findings = detector.detect([
+        {'id': 's1', 'text': 'Mhm. Mhm.'},
+        {'id': 's2', 'text': 'Mhm.'},
+    ])
+    assert not findings
 
 
 def test_short_name_is_not_a_greeting_inside_speaker_label():

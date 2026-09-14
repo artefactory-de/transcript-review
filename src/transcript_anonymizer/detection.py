@@ -245,7 +245,8 @@ _HUMAN_CONTEXT_RE = re.compile(
 _AMBIGUOUS_NAMES = {'beispiel', 'muster', 'winter', 'sommer', 'frühling', 'herbst', 'keller', 'braun', 'weiß', 'weiss', 'mai', 'mark', 'will', 'kraft', 'könig'}
 _HONORIFIC_RE = re.compile(r'(?iu)\b(?:herrn?|frau|dr\.|prof\.)\s*$')
 _DISCOURSE_LINE_RE = re.compile(
-    r'(?imu)^[ \t]*(?:(?:hi|hallo|tschüss|tschuess|danke|okay|yup|yeah|no)[ \t.!?,]*)+$'
+    r'(?imu)^[ \t]*(?:(?:hi|hallo|tschüss|tschuess|danke|okay|yup|yeah|no|'
+    r'm+hm+|hm+|mhm|ja|nein|gut|genau|ah|oh|äh+|aeh+)[ \t.!?,]*)+$'
 )
 _NAMED_OBJECT_RE = re.compile(
     r'(?iu)\b(?:das(?:\s+(?:system|programm|projekt|tool|verfahren))?|die\s+(?:software|anwendung))'
@@ -893,11 +894,6 @@ class Detector:
         for finding in findings:
             if finding['detector'] == 'rule:speaker':
                 anchors[_name_form(finding['text'])] = (finding['text'], finding['entity_key'])
-        for finding in findings:
-            name = finding['text']
-            form = _name_form(name)
-            if finding['category'] == 'person' and not finding.get('review_only') and finding['score'] >= 0.8 and len(form.split()) >= 2:
-                anchors.setdefault(form, (name, explicit.get(form, finding.get('entity_key') or f"name:{hashlib.sha256(form.encode()).hexdigest()[:16]}")))
         for entry in self.policy['aliases']:
             for name in entry['aliases']:
                 if len(_name_form(name).split()) >= 2:
