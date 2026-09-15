@@ -19,8 +19,11 @@
 ## Review and export
 
 - Generate a source-named, protected XLSX with aggregated proposals and ranked
-  retained passages. Explain every action and the whole-passage copy/edit workflow
-  within the workbook. Top-align all cells; permit column resizing.
+  retained passages. Rank retained passages by estimated PII risk: confident
+  retained evidence and direct identifiers precede weak generic candidates, while
+  a deterministic lower-risk sample remains a sign-off backstop. Explain every
+  action and the whole-passage copy/edit workflow within the workbook. Top-align
+  all cells; permit column resizing.
 - Only decisions, corrections, notes and sign-off are editable. Independently
   validate imported files, including tampered protection and pasted invalid values.
 - Preserve immutable revisions. Rescan corrections and invalidate changed approvals.
@@ -48,5 +51,6 @@
   assets include manifests, checksums, upgrade instructions and notices.
 - Source tests run on Linux and Windows; native frozen synthetic tests cover review,
   correction, sign-off and export. Only synthetic content enters CI or fixtures.
-- Draft release upload and public publication are separate operations. Source
+- A pushed verified version tag automatically publishes the full, split and
+  update-only release assets. Manual candidate runs remain unpublished. Source
   privacy review, licence/notices review and manual functional tests remain required.

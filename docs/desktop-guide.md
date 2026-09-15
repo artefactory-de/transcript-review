@@ -27,6 +27,12 @@ replacements, then the ranked retained passages. Edit only the marked fields;
 column widths are adjustable. To correct multiple items in a passage, copy its
 text into the correction field and edit each item there. Word edits are not imported.
 
+The ranked-passage sheet is a PII-risk queue, not a safety guarantee. It puts
+unmodified passages with confident retained evidence and possible direct
+identifiers (such as email, phone, account or IBAN data) ahead of weak generic
+candidates. Review from the top down and include the deterministic lower-ranked
+sample before sign-off. A low-ranked passage is not evidence that it is safe.
+
 Save and close Excel, then import the workbook. Content changes produce an updated
 workbook and clear sign-off. Review that workbook, fill in **Signed off by**, save,
 close and import again.

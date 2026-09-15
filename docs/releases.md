@@ -3,8 +3,9 @@
 Push a version tag such as `v1.2.3`. The workflow builds a Windows x64
 application with pinned dependencies, model and runtime, tests the frozen
 review/import/sign-off/export cycle, then publishes the release if every check
-passes. Run **Build release candidate** manually when an unpublished candidate
-is needed.
+passes. On a later release it automatically uses the most recent public Full ZIP
+as the update base. Run **Build release candidate** manually only when an
+unpublished candidate is needed; manual candidate runs do not publish.
 
 - **Code ZIP:** executable, documentation, notices and installation metadata.
 - **Libraries ZIP:** bundled Python and native libraries.
@@ -25,6 +26,6 @@ installation.
 
 ## Publish
 
-Build artifacts are retained for three days. Tag-triggered publication uploads
-the verified files as a public release. Automated tests do not establish
-redaction quality or compatibility with every Windows system.
+Build artifacts are retained for three days. Every pushed version tag uploads the
+verified files as a public release. Automated tests do not establish redaction
+quality or compatibility with every Windows system.

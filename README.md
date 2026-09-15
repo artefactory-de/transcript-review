@@ -6,11 +6,16 @@ Offline PII detection, Excel review and clean DOCX export for Windows.
 2. Edit the proposed replacements and ranked passages in the workbook.
 3. Import your decisions, sign off the current candidate and export.
 
-Inference runs locally. Detection can miss identifiers or flag ordinary text;
-human review is required. Keep review workspaces private and separate from exports.
+Inference runs locally. The default scope is PII only: role names, systems,
+processes and generic organisational terms are preserved. Detection can still miss
+identifiers or flag ordinary text, so human review is required. Keep review
+workspaces private and separate from exports.
 
 See the [user guide](docs/desktop-guide.md), [requirements](specs/requirements.md)
 and [release instructions](docs/releases.md).
+
+Pushing a verified `vX.Y.Z` tag builds and publishes the corresponding Windows
+release automatically.
 
 ## Development
 
