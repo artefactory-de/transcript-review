@@ -14,8 +14,8 @@ workspaces private and separate from exports.
 See the [user guide](docs/desktop-guide.md), [requirements](specs/requirements.md)
 and [release instructions](docs/releases.md).
 
-Pushing a verified `vX.Y.Z` tag builds and publishes the corresponding Windows
-release automatically.
+Pushing a `vX.Y.Z` tag triggers a verified Windows build and publishes the
+release automatically if every check passes.
 
 ## Development
 

@@ -51,6 +51,6 @@
   assets include manifests, checksums, upgrade instructions and notices.
 - Source tests run on Linux and Windows; native frozen synthetic tests cover review,
   correction, sign-off and export. Only synthetic content enters CI or fixtures.
-- A pushed verified version tag automatically publishes the full, split and
-  update-only release assets. Manual candidate runs remain unpublished. Source
+- A pushed version tag automatically publishes the verified full, split and
+  update-only release assets when CI passes. Manual candidate runs remain unpublished. Source
   privacy review, licence/notices review and manual functional tests remain required.
